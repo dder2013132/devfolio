@@ -1,4 +1,5 @@
 import ProjectCard from "./ProjectCard";
+import styles from "../css/Projects.module.css"
 
 type ProjectsProps = {
   title: {
@@ -9,7 +10,7 @@ type ProjectsProps = {
 
 function Projects({ title }: ProjectsProps) {
   return (
-    <section className="Card">
+    <section className={styles.Card}>
       <ProjectCard title={title.first} />
       <ProjectCard title={title.second} />
     </section>

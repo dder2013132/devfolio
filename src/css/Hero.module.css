@@ -1,0 +1,54 @@
+.heroTitle {
+  font-size: clamp(48px, 8vw, 120px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: clamp(-4px, -0.25vw, -1px);
+  margin: 0;
+}
+
+.hero {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  min-height: 80vh;
+}
+
+.heroName {
+  color: #88ce7b; 
+}
+
+.accent {
+  color: #88ce7b;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.mask {
+  display: block;
+  overflow: hidden;
+}
+
+.fadeIn {
+  display: block;
+  animation: fadeIn 0.8s ease-out both;
+}
+
+.second {
+  animation-delay: 0.2s;
+}
+
+.third {
+  animation-delay: 0.4s;
+}
