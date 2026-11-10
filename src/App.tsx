@@ -1,122 +1,55 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useRef } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const packetRef = useRef<HTMLDivElement>(null);
+  const playportRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    console.log("Effect 실행!");
+
+    return () => {
+      console.log("Effect 정리!");
+    };
+  }, []);
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <div>
+      <header>
+        <p>DEVFOLIO®</p>
+        <p>MENU</p>
+      </header>
+      <hr />
+      <main>
+        <section className="hero">
+          <p className="heroName">●SOFTWARE ENGINEER</p>
+          <h1 className="heroTitle">
+            <span className="mask">
+              <span className="fadeIn first">CODE.</span>
+            </span>
+            <span className="mask">
+              <span className="fadeIn third accent">CREATE.</span>
+            </span>
+            <span className="mask">
+              <span className="fadeIn second">EVOLVE.</span>
+            </span>
+          </h1>
+          <p style={{ fontSize: "15px" }}>Building software with purpose.</p>
+          <p style={{ fontSize: "15px" }}>SCROLL TO EXPLORE</p>
+        </section>
+        <section className="Card">
+          <h2>SELECTED WORK</h2>
+          <div className="projectCard" ref={packetRef}>
+            <h3>PacketScope</h3>
+          </div>
+          <div className="projectCard" ref={playportRef}>
+            <h3>PlayPort</h3>
+          </div>
+        </section>
+      </main>
+      <hr />
+      <footer>YOU NEVER KNOW MY GITHUB ADDRESS</footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
