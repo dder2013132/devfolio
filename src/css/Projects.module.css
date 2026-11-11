@@ -1,7 +1,19 @@
+@import "./tokens.css";
+
+.ProjectBackground {
+  background-color: #171717;
+  padding: 100px 24px;
+}
+
 .Card {
-  margin: 0;
+  color: #F5F1E8;
+  margin: 0 auto;
+  
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
+  gap: 48px;
+  max-width: var(--container-width);
+  width: 100%;
+  box-sizing: border-box;
 }

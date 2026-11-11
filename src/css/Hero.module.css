@@ -7,20 +7,24 @@
 }
 
 .hero {
-  margin: 0;
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
-
   min-height: 80vh;
 }
 
 .heroName {
-  color: #88ce7b; 
+  color: var(--color-text);
 }
 
 .accent {
-  color: #88ce7b;
+  color: var(--color-accent);
 }
 
 @keyframes fadeIn {
@@ -51,4 +55,10 @@
 
 .third {
   animation-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeIn {
+    animation: none;
+  }
 }

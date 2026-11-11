@@ -1,8 +1,14 @@
+@import "./css/tokens.css";
+
 main {
   min-height: 80vh;
 }
 
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
 
 .accent {
-  color: #88ce7b;
+  color: var(--color-accent);
 }

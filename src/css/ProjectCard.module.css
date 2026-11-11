@@ -1,8 +1,7 @@
 .projectCard {
-  border: 1px solid #88ce7b;
-  padding: 32px;
-  background-color: #24292D;
-  border-radius: 16px;
+  border: 1px solid #454545;
+  background-color: #24292d;
+  border-radius: 8px;
 
   transition:
     transform 0.3s ease,
@@ -12,6 +11,86 @@
 
 .projectCard:hover {
   transform: translateY(-8px);
-  background-color: #303A35;
-  border-color: #B3FF69;
+  background-color: #30343a;
+  border-color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projectCard {
+    transition: none;
+  }
+
+  .projectCard:hover {
+    transform: none;
+  }
+}
+
+.projectImage {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  max-height: 360px;
+  background-color: #30343a;
+  overflow: hidden;
+}
+
+.projectInfo {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.projectInfo p {
+  margin: 0;
+}
+
+.projectTitle {
+  font-size: clamp(28px, 4vw, 48px);
+  margin: 0;
+}
+
+.projectDescription {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+
+.projectCategory {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b9b9b9;
+}
+
+.projectTechstack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.techTag {
+  border: 1px solid #656565;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #f5f1e8;
+}
+
+.gitlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.gitlink:hover {
+  color: var(--color-accent);
+}
+
+.gitlink:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
 }

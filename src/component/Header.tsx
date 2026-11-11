@@ -3,8 +3,8 @@ import styles from "../css/Header.module.css";
 function Header() {
   return (
     <header className={styles.header}>
-      <p>DEVFOLIO®</p>
-      <p>MENU</p>
+      <p className={styles.title}>DEVFOLIO®</p>
+      <p className={styles.menu}>MENU</p>
     </header>
   );
 }

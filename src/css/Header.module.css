@@ -1,4 +1,31 @@
-header {
+.header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 20px 24px;
+
+  color: var(--color-text);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.menu {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .menu {
+    font-size: 12px;
+  }
 }
