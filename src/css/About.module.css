@@ -1,0 +1,105 @@
+.about {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 80px 24px;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.skillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skillTag {
+  border: 1px solid #656565;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.aboutContent {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 56px;
+  margin-top: 48px;
+
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .aboutContent {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aboutCard {
+  border-radius: 8px;
+  padding: 32px;
+  color: #f5f1e8;
+
+  opacity: 0;
+  transform: translateX(60px);
+
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+
+  transition-delay: 0s;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.aboutPanel {
+  background-color: var(--color-surface);
+  border-radius: 28px;
+  padding: 32px;
+
+  opacity: 0;
+  transform: translateX(60px);
+
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.aboutPanel.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.aboutPanel.visible .aboutCard {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.6s;
+}
+
+.systemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #454D52;
+
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #9CA5AA;
+}
+
+.systemStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-neon);
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-neon);
+}

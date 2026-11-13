@@ -9,7 +9,7 @@ function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div className={styles.projectCard}>
       <div className={styles.projectImage}>
-        {/* 프로젝트 이미지 */}
+        <img className={styles.cardImage} src={project.img} alt="메인 화면 이미지" />
       </div>
 
       <div className={styles.projectInfo}>

@@ -1,9 +1,11 @@
 :root {
   /* Colors */
-  --color-bg: #F5F1E8;
+  --color-bg: #f5f1e8;
   --color-text: #171717;
-  --color-accent: #FF5934;
-  --color-muted: #C9C1B3;
+  --color-accent: #ff5934;
+  --color-muted: #c9c1b3;
+  --color-neon: #c6ff45;
+  --color-surface: #24292d;
 
   /* Layout */
   --container-width: 1200px;

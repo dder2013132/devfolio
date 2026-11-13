@@ -8,7 +8,7 @@ interface ProjectsProps {
 
 function Projects({ projects }: ProjectsProps) {
   return (
-    <div className={styles.ProjectBackground}>
+    <div id="Projects" className={styles.ProjectBackground}>
       <section className={styles.Card}>
         {projects.length === 0 ? (
           <p>등록된 프로젝트가 없습니다.</p>
