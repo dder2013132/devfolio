@@ -70,6 +70,30 @@ function About() {
               <span>&gt;_</span>
               <span>BUILDING WHAT'S NEXT_</span>
             </div>
+            <div className={styles.miniTerminal}>
+              <div className={styles.terminalLine}>
+                <span className={styles.terminalPrompt}>~/devfolio $</span>
+                <span>whoami</span>
+              </div>
+
+              <p>role: fullstack developer</p>
+              <p>focus: systems & data flow</p>
+              <p>status: always learning</p>
+
+              <div className={styles.terminalLine}>
+                <span className={styles.terminalPrompt}>~/devfolio $</span>
+                <span>cat current-project.txt</span>
+              </div>
+
+              <p>project: PacketScope</p>
+              <p>language: C / Win32 API</p>
+              <p>status: in development</p>
+
+              <div className={styles.terminalLine}>
+                <span className={styles.terminalPrompt}>~/devfolio $</span>
+                <span className={styles.cursor}></span>
+              </div>
+            </div>
           </section>
 
           <section className={styles.aboutCard}>

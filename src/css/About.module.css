@@ -179,3 +179,46 @@
   color: var(--color-neon);
   transform: translateY(-2px);
 }
+
+.miniTerminal {
+  margin-top: 28px;
+  padding: 16px 20px;
+  background: #191e21;
+  border: 1px solid #424c50;
+  border-radius: 8px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.terminalLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terminalPrompt {
+  color: var(--color-neon);
+}
+
+.miniTerminal p {
+  margin: 0;
+  color: #aeb8bc;
+}
+
+.cursor {
+  width: 7px;
+  height: 14px;
+  display: inline-block;
+  background: var(--color-neon);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
