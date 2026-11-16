@@ -8,8 +8,11 @@
   --color-surface: #24292d;
 
   /* Layout */
-  --container-width: 1200px;
-  --section-spacing: 120px;
+  --container-width: 1000px;
+  --section-spacing: clamp(32px, 6dvh, 80px);
+  --header-height: 56px;
+
+  --page-padding: clamp(12px, 2vw, 24px);
 
   /* Typography */
   --font-body: Arial, sans-serif;

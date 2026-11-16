@@ -1,5 +1,5 @@
 .heroTitle {
-  font-size: clamp(48px, 8vw, 120px);
+  font-size: clamp(36px, 5.5vw, 88px);
   font-weight: 700;
   line-height: 1;
   letter-spacing: clamp(-4px, -0.25vw, -1px);
@@ -10,13 +10,13 @@
   width: 100%;
   max-width: var(--container-width);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--page-padding);
   box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 80vh;
+  min-height: 75vh;
 }
 
 .heroName {

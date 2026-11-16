@@ -1,14 +1,29 @@
 @import "./tokens.css";
 
-.ProjectBackground {
+.scrollArea {
+  height: calc(100dvh - var(--header-height) + 2700px);
   background-color: #171717;
-  padding: 100px 24px;
+}
+
+.ProjectBackground {
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100dvh - var(--header-height));
+
+  background-color: #171717;
+  padding: var(--page-padding);
+  box-sizing: border-box;
+  overflow: clip;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .Card {
-  color: #F5F1E8;
+  color: #f5f1e8;
   margin: 0 auto;
-  
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -16,4 +31,38 @@
   max-width: var(--container-width);
   width: 100%;
   box-sizing: border-box;
+}
+
+.wheelViewport {
+  --wheel-radius: clamp(100px, 24dvh, 200px);
+
+  perspective: 1400px;
+  width: min(640px, 80vw);
+  height: min(440px, 60dvh);
+  margin-inline: auto;
+}
+
+.wheel {
+  position: relative;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+
+  outline: 2px solid yellow;
+}
+
+.wheelItem {
+  position: absolute;
+  transform-style: preserve-3d;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  outline: 2px solid lime;
+}
+
+.cardWrapper {
+  width: 100%;
 }

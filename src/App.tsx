@@ -7,6 +7,8 @@ import Footer from "./component/Footer";
 import type { Project } from "./types/project";
 import playportHome from "./assets/screenshots/playport/home.png";
 import packetscopeHome from "./assets/screenshots/packetscope/home.png";
+import kimbapHome from "./assets/screenshots/Kimbap/home.png";
+import noodleMesHome from "./assets/screenshots/NoodleMES/home.png";
 
 function App() {
   const projects: Project[] = [
@@ -18,7 +20,7 @@ function App() {
       category: "Network / Desktop Application",
       techStack: ["C", "Win32 API", "Npcap", "Multithreading"],
       githubUrl: "https://github.com/dder2013132/PacketScope.git",
-      img: packetscopeHome
+      img: packetscopeHome,
     },
     {
       id: 2,
@@ -28,7 +30,27 @@ function App() {
       category: "Web / E-Commerce",
       techStack: ["Java", "Servlet", "JSP", "JDBC", "PostgreSQL", "Maven"],
       githubUrl: "https://github.com/dder2013132/gamestore.git",
-      img: playportHome
+      img: playportHome,
+    },
+    {
+      id: 3,
+      title: "Kimbap",
+      description:
+        "A supply chain management system designed to manage material procurement, inventory, and logistics operations.",
+      category: "Web / SCM",
+      techStack: [],
+      githubUrl: "https://github.com/wnsl1364/Kimbap.git",
+      img: kimbapHome,
+    },
+    {
+      id: 4,
+      title: "NoodleMES",
+      description:
+        "A manufacturing execution system designed to manage production processes and manufacturing operations.",
+      category: "Web / MES",
+      techStack: [],
+      githubUrl: "https://github.com/greenstar-gyul/NoodleMES.git",
+      img: noodleMesHome,
     },
   ];
   return (
