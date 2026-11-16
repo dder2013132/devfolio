@@ -1,0 +1,7 @@
+.container {
+    width: 400px;
+    height: 400px;
+    flex-shrink: 0;
+
+    outline: 1px solid red;
+}
