@@ -12,3 +12,7 @@ body {
 .accent {
   color: var(--color-accent);
 }
+
+html {
+    scroll-padding-top: var(--header-height);
+}

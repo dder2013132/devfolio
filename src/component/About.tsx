@@ -123,7 +123,7 @@ function About() {
         </div>
       </div>
 
-      <div>d</div>
+      {/* <div>d</div> */}
     </div>
   );
 }

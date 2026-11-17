@@ -261,7 +261,26 @@ function HeroGraphic() {
     };
   }, []);
 
-  return <div ref={containerRef} className={styles.container} />;
+  return (
+    <figure className={styles.figure}>
+      <div ref={containerRef} className={styles.container} />
+
+      <figcaption className={styles.caption}>
+        <div className={styles.captionHeader}>
+          <span>FIG. 01 — ORBITAL SYSTEM</span>
+          <span className={styles.status}>● ACTIVE</span>
+        </div>
+
+        <p className={styles.description}>
+          Complexity in motion. Precision by design.
+        </p>
+
+        <span className={styles.technology}>
+          PROCEDURAL GEOMETRY / THREE.JS / WEBGL
+        </span>
+      </figcaption>
+    </figure>
+  );
 }
 
 export default HeroGraphic;
