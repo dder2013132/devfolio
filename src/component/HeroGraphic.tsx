@@ -98,7 +98,7 @@ function HeroGraphic() {
     const glassEdgeMaterial = new THREE.LineBasicMaterial({
       color: 0x9dbbb5,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.35,
     });
 
     const glassOutline = new THREE.LineSegments(glassEdges, glassEdgeMaterial);
@@ -191,6 +191,18 @@ function HeroGraphic() {
     const animate = () => {
       group.rotation.x += 0.003;
       group.rotation.y += 0.005;
+
+      glass.rotation.x = THREE.MathUtils.lerp(
+        glass.rotation.x,
+        0.4 - mouseY * 0.15,
+        0.05,
+      );
+
+      glass.rotation.y = THREE.MathUtils.lerp(
+        glass.rotation.y,
+        0.6 + mouseX * 0.15,
+        0.05,
+      );
 
       targetPosition.set(mouseX * 0.5, -mouseY * 0.5, 0);
 
