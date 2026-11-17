@@ -1,7 +1,5 @@
 .container {
-    width: 400px;
-    height: 400px;
+    width: 450px;
+    height: 450px;
     flex-shrink: 0;
-
-    outline: 1px solid red;
 }
