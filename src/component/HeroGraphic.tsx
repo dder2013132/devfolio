@@ -146,7 +146,7 @@ function HeroGraphic() {
     let disposed = false;
     let environmentTexture: THREE.Texture | undefined;
 
-    hdrLoader.load("/office.hdr", (texture) => {
+    hdrLoader.load("/office-small.hdr", (texture) => {
       if (disposed) {
         texture.dispose();
         return;
@@ -156,6 +156,10 @@ function HeroGraphic() {
 
       scene.environment = texture;
       environmentTexture = texture;
+
+      if (motionQuery.matches) {
+        renderer.render(scene, camera);
+      }
     });
 
     // 5. Lighting
@@ -187,33 +191,40 @@ function HeroGraphic() {
 
     // 8. Animation
     let animationId: number | null = null;
+    let lastTime: number | null = null;
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    const animate = () => {
-      group.rotation.x += 0.003;
-      group.rotation.y += 0.005;
+    const animate = (currentTime: number) => {
+      const deltaTime =
+        lastTime === null ? 0 : Math.min((currentTime - lastTime) / 1000, 0.1);
+      const alpha = 1 - Math.pow(0.95, deltaTime * 60);
+
+      lastTime = currentTime;
+
+      group.rotation.x += 0.18 * deltaTime;
+      group.rotation.y += 0.3 * deltaTime;
 
       glass.rotation.x = THREE.MathUtils.lerp(
         glass.rotation.x,
         0.4 - mouseY * 0.15,
-        0.05,
+        alpha,
       );
 
       glass.rotation.y = THREE.MathUtils.lerp(
         glass.rotation.y,
         0.6 + mouseX * 0.15,
-        0.05,
+        alpha,
       );
 
       targetPosition.set(mouseX * 0.5, -mouseY * 0.5, 0);
 
-      group.position.lerp(targetPosition, 0.05);
+      group.position.lerp(targetPosition, alpha);
 
       glass.position.copy(group.position);
 
-      secondMesh.rotation.z += 0.004;
-      thirdMesh.rotation.x -= 0.003;
+      secondMesh.rotation.z += 0.24 * deltaTime;
+      thirdMesh.rotation.x -= 0.18 * deltaTime;
 
       renderer.render(scene, camera);
 
@@ -236,6 +247,7 @@ function HeroGraphic() {
 
       cancelAnimationFrame(animationId);
       animationId = null;
+      lastTime = null;
     };
 
     const visibilityObserver = new IntersectionObserver(

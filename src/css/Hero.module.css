@@ -90,7 +90,7 @@
 }
 
 .accent {
-  color: var(--color-accent);
+  color: #f04b28;
 }
 
 @keyframes fadeIn {

@@ -59,7 +59,7 @@ function About() {
             </h1>
 
             <div className={styles.aboutDescription}>
-              <h3>Building systems, understanding their flow.</h3>
+              <p className={styles.aboutSubtitle}>Building systems, understanding their flow.</p>
               <p>
                 I'm a developer interested in backend systems, database
                 structures, and low-level programming.

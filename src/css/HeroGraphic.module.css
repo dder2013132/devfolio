@@ -28,8 +28,7 @@
 }
 
 .status {
-  color: #ff5733;
-  animation: pulse 2s ease-in-out infinite;
+  color: #b83b20;
 }
 
 @keyframes pulse {
@@ -55,7 +54,7 @@
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 1px;
-  color: #777;
+  color: #626262;
 }
 
 @media (max-width: 800px) {

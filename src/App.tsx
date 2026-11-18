@@ -6,10 +6,10 @@ import Header from "./component/Header";
 import Contact from "./component/Contact";
 import Footer from "./component/Footer";
 import type { Project } from "./types/project";
-import playportHome from "./assets/screenshots/playport/home.png";
-import packetscopeHome from "./assets/screenshots/packetscope/home.png";
-import kimbapHome from "./assets/screenshots/Kimbap/home.png";
-import noodleMesHome from "./assets/screenshots/NoodleMES/home.png";
+import playportHome from "./assets/screenshots/playport/playport.webp";
+import packetscopeHome from "./assets/screenshots/packetscope/packetscope.webp";
+import kimbapHome from "./assets/screenshots/Kimbap/Kimbap.webp";
+import noodleMesHome from "./assets/screenshots/NoodleMES/NoodleMES.webp";
 
 function App() {
   const projects: Project[] = [

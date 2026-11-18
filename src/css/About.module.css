@@ -112,9 +112,16 @@
   max-width: 420px;
 }
 
-.aboutDescription h3 {
+/* .aboutDescription h3 {
   font-size: 16px;
   line-height: 1.5;
+} */
+
+.aboutDescription .aboutSubtitle {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #f5f1e8;
 }
 
 .aboutDescription p {
