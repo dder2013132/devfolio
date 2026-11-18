@@ -664,3 +664,59 @@ setActiveSection(currentSection ?? "");
 - [ ] 전체 빌드·린트 실행 및 배포 검증
 
 **핵심:** 포트폴리오는 외형만 보여주는 사이트가 아니다. React 상태와 DOM, 이벤트 처리, 좌표계, 그래픽 자원 수명, 라이브러리와 브라우저의 연결을 직접 실험한 결과물이다.
+
+/*
+ * Three.js Experiment
+ * Procedural Trefoil Knot + ExtrudeGeometry
+ *
+ * Vector3, CatmullRomCurve3, Vector2, Shape,
+ * ExtrudeGeometry, EdgesGeometry 실습
+ *
+
+const points: THREE.Vector3[] = [];
+const pointCount = 48;
+
+for (let i = 0; i < pointCount; i++) {
+  const angle = (i / pointCount) * Math.PI * 2;
+  const radius = 1.5 + Math.cos(angle * 3) * 0.4;
+
+  const x = Math.cos(angle * 2) * radius;
+  const y = Math.sin(angle * 3) * 0.5;
+  const z = Math.sin(angle * 2) * radius;
+
+  points.push(new THREE.Vector3(x, y, z));
+}
+
+const curve = new THREE.CatmullRomCurve3(points, true);
+
+const shapePoints: THREE.Vector2[] = [
+  new THREE.Vector2(-0.2, -0.15),
+  new THREE.Vector2(0.2, -0.15),
+  new THREE.Vector2(0.2, 0.15),
+  new THREE.Vector2(-0.2, 0.15),
+];
+
+const shape = new THREE.Shape(shapePoints);
+
+const geometry = new THREE.ExtrudeGeometry(shape, {
+  extrudePath: curve,
+  steps: 120,
+  bevelEnabled: false,
+});
+
+const geometry = new THREE.TorusGeometry(1.5, 0.15, 32, 96);
+
+const edges = new THREE.EdgesGeometry(geometry, 45);
+
+const material = new THREE.LineBasicMaterial({
+  color: 0x171717,
+});
+
+const mesh = new THREE.LineSegments(edges, material);
+
+// Cleanup
+geometry.dispose();
+edges.dispose();
+material.dispose();
+
+*/

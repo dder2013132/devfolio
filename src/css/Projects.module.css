@@ -20,19 +20,6 @@
   justify-content: center;
 }
 
-.Card {
-  color: #f5f1e8;
-  margin: 0 auto;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 48px;
-  max-width: var(--container-width);
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .wheelViewport {
   --wheel-radius: clamp(100px, 24dvh, 200px);
 
@@ -186,5 +173,57 @@
     grid-area: progress;
     position: static;
     justify-self: end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollArea {
+    height: auto;
+  }
+
+  .ProjectBackground {
+    position: static;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .projectHeading {
+    position: static;
+    margin-bottom: 24px;
+  }
+
+  .wheelViewport {
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    perspective: none;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .wheel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: auto;
+    transform: none !important;
+  }
+
+  .wheelItem {
+    position: relative;
+    inset: auto;
+    transform: none !important;
+  }
+
+  .cardWrapper {
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .projectCounter,
+  .projectProgress {
+    display: none;
   }
 }

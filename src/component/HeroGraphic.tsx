@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import styles from "../css/HeroGraphic.module.css";
 
 function HeroGraphic() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -20,10 +21,18 @@ function HeroGraphic() {
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-    });
+    let renderer: THREE.WebGLRenderer;
+
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+    } catch (error) {
+      console.error("WebGL initialization failed:", error);
+      setHasError(true);
+      return;
+    }
 
     camera.position.z = 9;
 
@@ -311,7 +320,11 @@ function HeroGraphic() {
 
   return (
     <figure className={styles.figure}>
-      <div ref={containerRef} className={styles.container} />
+      <div ref={containerRef} className={styles.container}>
+        {hasError && (
+          <div className={styles.fallback}>3D GRAPHICS UNAVAILABLE</div>
+        )}
+      </div>
 
       <figcaption className={styles.caption}>
         <div className={styles.captionHeader}>
@@ -332,59 +345,3 @@ function HeroGraphic() {
 }
 
 export default HeroGraphic;
-
-/*
- * Three.js Experiment
- * Procedural Trefoil Knot + ExtrudeGeometry
- *
- * Vector3, CatmullRomCurve3, Vector2, Shape,
- * ExtrudeGeometry, EdgesGeometry 실습
- *
-
-const points: THREE.Vector3[] = [];
-const pointCount = 48;
-
-for (let i = 0; i < pointCount; i++) {
-  const angle = (i / pointCount) * Math.PI * 2;
-  const radius = 1.5 + Math.cos(angle * 3) * 0.4;
-
-  const x = Math.cos(angle * 2) * radius;
-  const y = Math.sin(angle * 3) * 0.5;
-  const z = Math.sin(angle * 2) * radius;
-
-  points.push(new THREE.Vector3(x, y, z));
-}
-
-const curve = new THREE.CatmullRomCurve3(points, true);
-
-const shapePoints: THREE.Vector2[] = [
-  new THREE.Vector2(-0.2, -0.15),
-  new THREE.Vector2(0.2, -0.15),
-  new THREE.Vector2(0.2, 0.15),
-  new THREE.Vector2(-0.2, 0.15),
-];
-
-const shape = new THREE.Shape(shapePoints);
-
-const geometry = new THREE.ExtrudeGeometry(shape, {
-  extrudePath: curve,
-  steps: 120,
-  bevelEnabled: false,
-});
-
-const geometry = new THREE.TorusGeometry(1.5, 0.15, 32, 96);
-
-const edges = new THREE.EdgesGeometry(geometry, 45);
-
-const material = new THREE.LineBasicMaterial({
-  color: 0x171717,
-});
-
-const mesh = new THREE.LineSegments(edges, material);
-
-// Cleanup
-geometry.dispose();
-edges.dispose();
-material.dispose();
-
-*/

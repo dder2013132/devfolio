@@ -1,5 +1,6 @@
 import styles from "../css/Hero.module.css";
 import HeroGraphic from "./HeroGraphic";
+import { scrollToSection } from "../utils/scroll";
 
 function Hero() {
   return (
@@ -9,7 +10,7 @@ function Hero() {
           <p className={styles.heroName}>01 / SOFTWARE ENGINEER</p>
           <h1 className={styles.heroTitle}>
             <span className={styles.mask}>
-              <span className={`${styles.fadeIn} ${styles.first}`}>CODE.</span>
+              <span className={styles.fadeIn}>CODE.</span>
             </span>
             <span className={styles.mask}>
               <span
@@ -25,7 +26,7 @@ function Hero() {
             </span>
           </h1>
         </div>
-        <div className={styles.heroDetails}>
+        <div>
           <div className={styles.heroDescription}>
             <p>Building software with purpose.</p>
             <span>BACKEND / SYSTEMS / WEB DEVELOPMENT</span>
@@ -35,11 +36,7 @@ function Hero() {
             className={styles.scrollLink}
             onClick={(event) => {
               event.preventDefault();
-
-              document.getElementById("About")?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
+              scrollToSection("About", "center");
             }}
           >
             <span className={styles.scrollIcon}>

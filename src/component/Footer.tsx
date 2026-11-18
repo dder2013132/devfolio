@@ -1,4 +1,5 @@
 import styles from "../css/Footer.module.css";
+import { scrollToTop } from "../utils/scroll";
 
 function Footer() {
   return (
@@ -12,15 +13,7 @@ function Footer() {
           <button
             type="button"
             className={styles.backToTop}
-            onClick={() => {
-              window.scrollTo({
-                top: 0,
-                behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-                  .matches
-                  ? "instant"
-                  : "smooth",
-              });
-            }}
+            onClick={scrollToTop}
           >
             BACK TO TOP ↑
           </button>

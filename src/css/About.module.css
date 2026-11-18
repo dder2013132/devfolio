@@ -270,3 +270,24 @@
     margin-top: 1rem;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .aboutPanel,
+  .aboutCard {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .cursor {
+    animation: none;
+  }
+
+  .skillTag {
+    transition: none;
+  }
+
+  .skillTag:hover {
+    transform: none;
+  }
+}

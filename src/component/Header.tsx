@@ -1,4 +1,5 @@
 import styles from "../css/Header.module.css";
+import { scrollToTop, scrollToSection } from "../utils/scroll";
 import { useState, useEffect } from "react";
 
 function Header() {
@@ -34,15 +35,6 @@ function Header() {
     };
   }, []);
 
-  const scrollToSection = (id: string, block: ScrollLogicalPosition) => {
-    document.getElementById(id)?.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-      block,
-    });
-  };
-
   return (
     <header className={styles.header}>
       <div className={styles.headerInner}>
@@ -51,17 +43,10 @@ function Header() {
           className={styles.title}
           onClick={(event) => {
             event.preventDefault();
-
-            window.scrollTo({
-              top: 0,
-              behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-                .matches
-                ? "instant"
-                : "smooth",
-            });
+            scrollToTop();
           }}
         >
-          DEVFOLIO<span> ®</span>
+          DEVFOLIO<span>®</span>
         </a>
         <nav id="title" className={styles.nav}>
           <a

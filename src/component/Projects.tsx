@@ -11,116 +11,133 @@ interface ProjectsProps {
   projects: Project[];
 }
 
-//ScrollTrigger.normalizeScroll(true);
-
 function Projects({ projects }: ProjectsProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useGSAP(() => {
-    if (!wheelRef.current || !sectionRef.current) return;
+    if (projects.length <= 1) return;
 
-    let lastScrollY = window.scrollY;
-    let scrollingDown = false;
+    const mm = gsap.matchMedia();
 
-    const onScroll = () => {
-      scrollingDown = window.scrollY > lastScrollY;
-      lastScrollY = window.scrollY;
-    };
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const wheel = wheelRef.current;
+      const section = sectionRef.current;
 
-    const snapToSection = () => {
-      if (!sectionRef.current || !scrollingDown) return;
+      if (!wheel || !section) return;
 
-      const distance = sectionRef.current.getBoundingClientRect().top;
-      const threshold = window.innerHeight * 0.03;
+      const angleStep = 360 / projects.length;
+      const maxRotation = angleStep * (projects.length - 1);
 
-      if (distance > 1 && distance <= threshold) {
-        window.scrollBy({
-          top: distance,
-          behavior: "smooth",
-        });
-      }
-    };
+      let lastScrollY = window.scrollY;
+      let scrollingDown = false;
 
-    window.addEventListener("scroll", onScroll);
-    ScrollTrigger.addEventListener("scrollEnd", snapToSection);
+      const onScroll = () => {
+        scrollingDown = window.scrollY > lastScrollY;
+        lastScrollY = window.scrollY;
+      };
 
-    const cards = wheelRef.current.querySelectorAll(`.${styles.cardWrapper}`);
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.3,
-        markers: false,
+      const snapToSection = () => {
+        if (!scrollingDown) return;
 
-        snap: {
-          snapTo: (progress) => {
-            const step = 8 / 9 / 3;
-            const nearest = Math.round(progress / step) * step;
+        const distance = section.getBoundingClientRect().top;
+        const threshold = window.innerHeight * 0.03;
 
-            if (progress >= 8 / 9) return progress;
+        if (distance > 1 && distance <= threshold) {
+          window.scrollBy({
+            top: distance,
+            behavior: "smooth",
+          });
+        }
+      };
 
-            return Math.abs(progress - nearest) <= step * 0.1
-              ? nearest
-              : progress;
-          },
-          inertia: false,
-          duration: 0.3,
-          delay: 0.15,
-          ease: "power2.out",
-        },
-      },
-    });
+      window.addEventListener("scroll", onScroll);
+      ScrollTrigger.addEventListener("scrollEnd", snapToSection);
 
-    tl.to(wheelRef.current, {
-      rotationX: 270,
-      duration: 8,
-      ease: "none",
+      const cards = wheel.querySelectorAll<HTMLElement>(
+        `.${styles.cardWrapper}`,
+      );
 
-      onUpdate: () => {
-        const rotation = Number(
-          gsap.getProperty(wheelRef.current, "rotationX"),
-        );
-
-        const step = 360 / projects.length;
+      const updateCards = () => {
+        const rotation = Number(gsap.getProperty(wheel, "rotationX"));
 
         const index =
-          (projects.length - Math.round(rotation / step)) % projects.length;
+          (projects.length - Math.round(rotation / angleStep)) %
+          projects.length;
 
         setActiveIndex(index);
 
         cards.forEach((card, index) => {
-          const angle = index * (360 / projects.length);
+          const angle = index * angleStep;
           const totalAngle = angle + rotation;
 
           const radian = totalAngle * (Math.PI / 180);
           const depth = Math.cos(radian);
 
           const opacity = gsap.utils.mapRange(-1, 1, 0.15, 1, depth);
+          const isInteractive = depth >= 0.95;
+
+          card.inert = !isInteractive;
 
           gsap.set(card, {
             force3D: false,
             rotationX: -totalAngle,
-            opacity: opacity,
-            pointerEvents: depth >= 0.95 ? "auto" : "none",
+            opacity,
+            pointerEvents: isInteractive ? "auto" : "none",
           });
         });
-      },
+      };
+
+      updateCards();
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.3,
+          markers: false,
+
+          snap: {
+            snapTo: (progress) => {
+              const step = 8 / 9 / (projects.length - 1);
+              const nearest = Math.round(progress / step) * step;
+
+              if (progress >= 8 / 9) return progress;
+
+              return Math.abs(progress - nearest) <= step * 0.1
+                ? nearest
+                : progress;
+            },
+            inertia: false,
+            duration: 0.3,
+            delay: 0.15,
+            ease: "power2.out",
+          },
+        },
+      });
+
+      tl.to(wheel, {
+        rotationX: maxRotation,
+        duration: 8,
+        ease: "none",
+        onUpdate: updateCards,
+      });
+
+      tl.to({}, { duration: 1 });
+
+      return () => {
+        window.removeEventListener("scroll", onScroll);
+        ScrollTrigger.removeEventListener("scrollEnd", snapToSection);
+
+        cards.forEach((card) => {
+          card.inert = false;
+        });
+      };
     });
 
-    tl.to(
-      {},
-      {
-        duration: 1,
-      },
-    );
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      ScrollTrigger.removeEventListener("scrollEnd", snapToSection);
-    };
+    return () => mm.revert();
   });
 
   const displayIndex = ((projects.length - activeIndex) % projects.length) + 1;
