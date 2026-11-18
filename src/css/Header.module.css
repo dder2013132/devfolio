@@ -87,11 +87,20 @@
 }
 
 @media (max-width: 600px) {
+  .header {
+    padding-inline: var(--page-padding);
+  }
+
+  .nav {
+    gap: 8px;
+  }
+
   .title {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .menu {
-    font-size: 12px;
+    font-size: 10px;
+    gap: 4px;
   }
 }

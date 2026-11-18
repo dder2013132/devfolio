@@ -5,5 +5,5 @@ export interface Project {
   category: string;
   techStack: string[];
   githubUrl?: string;
-  img?: string;
+  img: string;
 }

@@ -61,7 +61,6 @@
 @media (max-width: 800px) {
   .figure {
     display: block;
-    max-width: 450px;
     align-self: center;
   }
 }

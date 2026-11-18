@@ -3,6 +3,7 @@ import Hero from "./component/Hero";
 import About from "./component/About";
 import Projects from "./component/Projects";
 import Header from "./component/Header";
+import Contact from "./component/Contact";
 import Footer from "./component/Footer";
 import type { Project } from "./types/project";
 import playportHome from "./assets/screenshots/playport/home.png";
@@ -61,6 +62,7 @@ function App() {
         <Hero />
         <About />
         <Projects projects={projects} />
+        <Contact />
       </main>
       <hr />
       <Footer />

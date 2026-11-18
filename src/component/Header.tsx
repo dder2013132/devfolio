@@ -65,7 +65,7 @@ function Header() {
           <span className={styles.navIndex}>02 /</span> PROJECTS
         </a>
         <a
-          href=""
+          href="#Contact"
           className={`${styles.menu} ${
             activeSection === "Contact" ? styles.active : ""
           }`}

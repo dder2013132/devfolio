@@ -47,8 +47,6 @@
   transform-style: preserve-3d;
   width: 100%;
   height: 100%;
-
-  outline: 2px solid yellow;
 }
 
 .wheelItem {
@@ -59,8 +57,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  outline: 2px solid lime;
 }
 
 .cardWrapper {

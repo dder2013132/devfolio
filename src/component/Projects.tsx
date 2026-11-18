@@ -53,6 +53,23 @@ function Projects({ projects }: ProjectsProps) {
         end: "bottom bottom",
         scrub: 0.3,
         markers: false,
+
+        snap: {
+          snapTo: (progress) => {
+            const step = 8 / 9 / 3;
+            const nearest = Math.round(progress / step) * step;
+
+            if (progress >= 8 / 9) return progress;
+
+            return Math.abs(progress - nearest) <= step * 0.1
+              ? nearest
+              : progress;
+          },
+          inertia: false,
+          duration: 0.3,
+          delay: 0.15,
+          ease: "power2.out",
+        },
       },
     });
 
@@ -76,6 +93,7 @@ function Projects({ projects }: ProjectsProps) {
           const opacity = gsap.utils.mapRange(-1, 1, 0.15, 1, depth);
 
           gsap.set(card, {
+            force3D: false,
             rotationX: -totalAngle,
             opacity: opacity,
             pointerEvents: depth >= 0.95 ? "auto" : "none",
