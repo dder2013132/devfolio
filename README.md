@@ -2,7 +2,7 @@
 
 A personal developer portfolio built with **React, TypeScript, and Vite**. DEVFOLIO presents selected software projects in a high-contrast, editorial-style interface.
 
-> **Status:** Work in progress. The portfolio layout and project cards are implemented; project screenshots, navigation, and the final footer are not yet complete.
+> **Status (2026-11-18):** Work in progress. The interactive hero, About section, scroll-driven project showcase, and section navigation are implemented. Contact, final responsive testing, and performance tuning remain outstanding.
 
 ## Overview
 
@@ -10,7 +10,12 @@ DEVFOLIO is a single-page portfolio focused on clear typography and project pres
 
 ### Current features
 
-- Reusable `Header`, `Hero`, `Projects`, `ProjectCard`, and `Footer` React components.
+- Reusable `Header`, `Hero`, `HeroGraphic`, `About`, `Projects`, `ProjectCard`, and `Footer` React components.
+- Procedural 3D orbital sculpture with metallic rings, a colored core, six translucent glass panels, HDR environment reflections, and pointer-driven motion.
+- Scroll-driven 3D project wheel using GSAP and ScrollTrigger, with depth-based opacity and pointer interaction.
+- About profile with an animated terminal-style panel and categorized technology stack.
+- Sticky navigation with numbered links, smooth section navigation, and a proposed center-based Scroll Spy (verification pending).
+- Technical figure caption and typography tokens shared across the hero and navigation.
 - TypeScript-based `Project` interface and typed component props.
 - Project data rendered with `Array.map()` and stable React keys.
 - Empty-state message when no projects are provided.
@@ -30,6 +35,8 @@ DEVFOLIO is a single-page portfolio focused on clear typography and project pres
 | Language | TypeScript 7 |
 | Build / development | Vite 8 |
 | Styling | CSS, CSS Modules, CSS custom properties |
+| 3D graphics | Three.js / WebGL |
+| Motion | GSAP, ScrollTrigger, @gsap/react |
 | Linting | Oxlint |
 
 Versions are based on the dependency declarations in the supplied `package.json` and may resolve to compatible versions after installation.
@@ -71,6 +78,8 @@ npm run dev
 
 Open the local URL printed by Vite in your terminal.
 
+The 3D component expects an HDR environment asset at `public/office.hdr`. Keep the asset available at `/office.hdr` when running or deploying the portfolio; review its license before redistribution.
+
 ### Available scripts
 
 ```bash
@@ -85,10 +94,13 @@ npm run lint     # Run Oxlint
 ```text
 devfolio/
 ├── public/
+│   └── office.hdr
 ├── src/
 │   ├── component/
 │   │   ├── Header.tsx
 │   │   ├── Hero.tsx
+│   │   ├── HeroGraphic.tsx
+│   │   ├── About.tsx
 │   │   ├── Projects.tsx
 │   │   ├── ProjectCard.tsx
 │   │   └── Footer.tsx
@@ -96,6 +108,8 @@ devfolio/
 │   │   ├── tokens.css
 │   │   ├── Header.module.css
 │   │   ├── Hero.module.css
+│   │   ├── HeroGraphic.module.css
+│   │   ├── About.module.css
 │   │   ├── Projects.module.css
 │   │   ├── ProjectCard.module.css
 │   │   └── Footer.module.css
@@ -118,9 +132,16 @@ devfolio/
 - **Primary text and dark-section background:** `#171717`
 - **Accent:** `#FF5934`
 - **Muted tone:** `#C9C1B3`
-- **Content max width:** `1200px`
+- **Content max width:** `1000px` (latest supplied token snapshot)
 
-The hero uses large, animated typography; the project section uses a full-width dark background with a constrained inner content area. Each project card currently includes a **21:9 image placeholder**, text information, technology tags, and an optional source link.
+The hero balances large animated typography with a procedural orbital sculpture and editorial figure caption. The About panel uses a dark technical interface with neon accents. The project showcase uses a full-width dark background and a rotating 3D arrangement of project cards.
+
+## Interaction Architecture
+
+- **HeroGraphic:** React mounts a Three.js renderer inside a referenced container. An animation loop updates ring rotations and interpolates pointer-driven movement. ResizeObserver updates the aspect ratio; cleanup releases shared geometries, materials, the texture, event listeners, and renderer.
+- **About:** IntersectionObserver controls entrance visibility, allowing the animation to replay when returning from above.
+- **Projects:** Cards are distributed around an X-axis wheel. ScrollTrigger maps page scroll to wheel rotation; counter-rotation keeps cards readable. A small downward entry snap aligns the showcase near its start.
+- **Header:** Anchor navigation and centered About navigation preserve normal wheel scrolling. A center-based active-section indicator has been proposed; confirm it in the latest local build.
 
 ## Development Status & Roadmap
 
@@ -133,13 +154,20 @@ The hero uses large, animated typography; the project section uses a full-width 
 - [x] High-contrast design tokens and sections
 - [x] Project technology badges and external source links
 - [x] Reduced-motion styles for hero and card movement
+- [x] About section and categorized skills
+- [x] Three.js orbital system and glass enclosure
+- [x] GSAP-driven project wheel and entry alignment
+- [x] Sticky numbered navigation with About and Projects links
+- [x] Editorial figure caption and unified Hero typography
 
 ### Planned / incomplete
 
 - [ ] Add real project screenshots to the existing image placeholders
-- [ ] Turn the Header's `MENU` label into functional navigation
 - [ ] Replace the temporary Footer text with actual contact links
-- [ ] Add an About section
+- [ ] Implement Contact and connect its navigation link
+- [ ] Verify Scroll Spy and mobile menu behavior
+- [ ] Pause off-screen WebGL rendering and review time-based motion
+- [ ] Validate wheel behavior with different project counts and keyboard navigation
 - [ ] Finish responsive layouts and perform cross-device QA
 - [ ] Add a finished portfolio screenshot to this README
 - [ ] Review accessibility and usability across the completed site
@@ -147,5 +175,7 @@ The hero uses large, animated typography; the project section uses a full-width 
 ## Notes
 
 The current project records are defined locally in `src/App.tsx`; there is no backend or content-management integration in this portfolio snapshot. Project descriptions and repository links should be updated as the featured applications evolve.
+
+This update combines the November 11 baseline with the November 17–18 component snapshots and development discussion. It is not a fresh full-repository build verification; check the final local dependency versions, assets, and pending changes before publishing.
 
 For a Korean-language walkthrough of the implementation and lessons learned, see [Learning Notes (KO)](docs/LEARNING_NOTES_KO.md).

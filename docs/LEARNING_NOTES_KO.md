@@ -1,6 +1,6 @@
 # DEVFOLIO 개발 학습 노트 (한국어)
 
-> 기준 자료: 2026-11-11에 전달된 `src.zip`의 React/TypeScript/CSS 소스. 이 문서는 **현재 코드에서 확인되는 사실**, **개념 설명**, **개선 아이디어**를 구분해서 정리한다. PacketScope와 PlayPort의 내부 구현은 이 ZIP의 검증 대상이 아니다.
+> 업데이트: 2026-11-18. 11월 11일 `src.zip` 기반의 기초 학습 기록(0~13장)을 보존하고, 11월 17~18일의 컴포넌트 소스와 개발 대화에 기반한 심화 기록(14장 이후)을 추가했다. 과거 장의 '현재'는 당시 스냅샷을 의미한다. 최신 전체 저장소 빌드 및 Scroll Spy 적용 여부는 아직 검증하지 않았다.
 
 ## 0. 학습 목표와 현재 진행 상황
 
@@ -409,3 +409,258 @@ Hero 스타일의 핵심:
 6. 배포 후 실사용 화면을 README에 기록한다.
 
 **한 줄 정리:** DEVFOLIO에서 가장 중요한 배움은 *타입은 데이터의 구조를 정의하고, Props는 실제 값을 전달하며, 컴포넌트와 CSS는 각자 맡은 영역의 표현을 책임진다*는 것이다.
+
+---
+
+# Part II. 인터랙션과 3D 그래픽 (11월 12~18일)
+
+## 14. 현재 구조와 역할 분리
+
+```text
+App
+├── Header       : sticky, 섹션 내비게이션
+├── Hero         : 타이포그래피, 소개, About 이동
+│   └── HeroGraphic : WebGL 장면과 기술 캡션
+├── About        : 소개, 기술 스택, 터미널 패널
+├── Projects     : 스크롤 진행률과 3D 회전
+│   └── ProjectCard × N
+└── Footer       : Contact 정식 구현 예정
+```
+
+React는 DOM의 선언적 구성을 담당한다. Three.js와 GSAP은 브라우저의 그래픽 및 애니메이션을 명령형으로 제어한다. 이들을 연결하는 주요 수단이 `useRef`와 `useEffect`다.
+
+## 15. useRef, useEffect, useState: 언제 무엇을 쓰는가?
+
+```tsx
+const containerRef = useRef<HTMLDivElement>(null);
+const [isVisible, setIsVisible] = useState(false);
+```
+
+- `useRef`: 렌더링 사이에 값을 보존한다. `ref.current` 변경만으로 React가 다시 렌더링되지는 않는다. DOM을 참조하거나 외부 라이브러리의 객체를 보관하기 좋다.
+- `useState`: JSX에 영향을 주는 상태를 관리한다. 값이 변경되면 렌더링이 예약된다.
+- `useEffect`: 렌더링 이후 외부 시스템과 연결하고 연결을 해제한다. 빈 의존성 배열은 마운트 기반의 설정에 사용하지만 개발 모드 StrictMode에서는 설정-정리-설정이 추가로 실행될 수 있다.
+
+Three.js의 매 프레임 회전값을 React State에 저장하지 않은 이유는 UI 트리 전체를 매 프레임 다시 계산할 필요가 없기 때문이다.
+
+## 16. About: IntersectionObserver와 진입 애니메이션
+
+```tsx
+const observer = new IntersectionObserver(([entry]) => {
+  if (entry.isIntersecting) setIsVisible(true);
+  else if (entry.boundingClientRect.top > 0) setIsVisible(false);
+}, { threshold: 0.3 });
+observer.observe(element);
+return () => observer.disconnect();
+```
+
+`threshold: 0.3`은 관찰 대상 면적의 교차 비율이 30% 경계를 넘을 때 알림을 받도록 설정한다. `isIntersecting` 자체가 반드시 30% 이상이라는 뜻은 아니다. 엄밀한 30% 이상 조건은 `intersectionRatio >= 0.3`으로 검사한다.
+
+`boundingClientRect.top > 0` 조건은 요소가 화면 아래로 돌아갔을 때만 상태를 초기화한다. 결과적으로 위로 스크롤하여 Hero로 돌아간 후 다시 진입하면 등장 애니메이션을 재생할 수 있다. CSS 클래스는 State에 따라 붙인다.
+
+## 17. Projects: 가상의 회전축과 CSS 3D
+
+프로젝트는 평면 슬라이더가 아니라 X축을 중심으로 돌아가는 물레방아를 구성한다.
+
+```tsx
+const angle = index * (360 / projects.length);
+// 바깥: 공간상의 위치
+transform: `rotateX(${angle}deg) translateZ(var(--wheel-radius))`
+// 안쪽: 카드 자체의 방향
+transform: `rotateX(${-angle}deg)`
+```
+
+4개라면 각도는 0°, 90°, 180°, 270°다. `translateZ`가 회전축에서 떨어진 거리를 만들고 `rotateX`가 위치를 회전시킨다. CSS 변환의 순서는 중요하다. 안쪽 요소의 역회전은 카드가 읽기 쉬운 방향을 유지하게 한다. `perspective`는 원근감을, `transform-style: preserve-3d`는 자식의 3D 배치를 보존한다.
+
+## 18. GSAP / ScrollTrigger: 스크롤로 시간을 제어하기
+
+```tsx
+const tl = gsap.timeline({
+  scrollTrigger: {
+    trigger: sectionRef.current,
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 0.3,
+    markers: false,
+  },
+});
+tl.to(wheelRef.current, { rotationX: 270, duration: 8, ease: "none" });
+tl.to({}, { duration: 1 });
+```
+
+- `trigger`: 스크롤 기준 엘리먼트.
+- `start`/`end`: 요소와 뷰포트 사이의 정렬 조건으로 진행 범위를 결정한다.
+- `scrub: 0.3`: 애니메이션 진행률을 스크롤에 연결하면서 따라오는 시간을 준다.
+- `ease: "none"`: 회전 진행률이 선형적으로 증가한다.
+- 빈 객체의 후속 tween: 회전이 끝난 상태에서 추가 스크롤 여유를 만든다.
+
+스크롤 연결 시 `duration: 8`은 실제로 반드시 8초가 걸린다는 의미가 아니라 타임라인 내 비율을 결정한다. 회전값 270°는 네 카드 배치를 전제로 조정한 값이므로 카드 수가 달라질 때 검증해야 한다. 일반화 후보는 `360 - 360 / projects.length`이며 회전 방향과 마지막 카드 순서도 확인해야 한다.
+
+### 깊이 계산과 클릭 제어
+
+```ts
+const totalAngle = angle + rotation;
+const radian = totalAngle * Math.PI / 180;
+const depth = Math.cos(radian);
+const opacity = gsap.utils.mapRange(-1, 1, 0.15, 1, depth);
+```
+
+`cos` 결과는 -1~1이다. 앞쪽(1)은 불투명하게, 뒤쪽(-1)은 흐리게 표시한다. 실제 코드의 `pointerEvents: depth >= 0.95 ? "auto" : "none"`은 앞쪽 카드만 포인터 클릭을 받게 한다. 단, `pointer-events: none`만으로 키보드 포커스가 차단되지는 않는다. 비활성 카드의 링크 접근성은 별도 점검이 필요하다.
+
+## 19. 스크롤 정렬, sticky 헤더와 진입 스냅
+
+기존 문제: About으로 이동하는 경로마다 최종 위치가 달랐다. Hero 버튼은 중앙, Header 링크는 조금 위, 휠로 이동하면 Projects가 일부 보였다.
+
+```tsx
+event.preventDefault();
+document.getElementById("About")?.scrollIntoView({
+  behavior: "smooth",
+  block: "center",
+});
+```
+
+`preventDefault()`는 앵커의 기본 이동을 막는다. `block: "center"`는 세로 방향 가운데 정렬을 요청한다. Hero와 Header에서 동일한 호출을 사용해 명시적인 이동의 기준을 통일했다. 사용자의 일반 휠 스크롤은 강제로 위치를 수정하지 않기로 결정했다. `scroll-padding`은 스크롤 컨테이너의 정렬 여백이고 `scroll-margin`은 대상 요소의 정렬 여백이므로 헤더 가림을 조정할 때 구분해서 사용한다.
+
+Projects는 별도 진입 스냅을 가진다. `window.scrollY`의 이전 값으로 아래 방향 여부를 판단하고, ScrollTrigger의 `scrollEnd`에서 섹션 상단까지 남은 거리(`getBoundingClientRect().top`)가 1px보다 크고 화면 높이의 3% 이내이면 `scrollBy`로 이동한다. 모든 섹션을 강제로 스냅시키는 것과 다르다. 카드별 90% 스냅은 이 코드로 구현됐다고 볼 수 없다.
+
+## 20. Three.js의 기본 구조
+
+| 구성 | 역할 |
+|---|---|
+| Scene | 장면 전체, 오브젝트와 조명 배치 |
+| PerspectiveCamera | 보는 위치, 시야각, 원근 투영 |
+| WebGLRenderer | 장면과 카메라를 받아 캔버스에 렌더링 |
+| Geometry | 정점과 면으로 정의되는 형태 |
+| Material | 색상, 거칠기, 금속성 등 표면 표현 |
+| Mesh | Geometry와 Material을 합친 렌더링 객체 |
+| Group | 여러 객체를 묶어 공통 변환 적용 |
+
+```ts
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+camera.position.z = 9;
+container.appendChild(renderer.domElement);
+```
+
+카메라 생성자의 인자는 시야각(도), 가로세로 비율, near, far다. 카메라가 멀어지면 일반적으로 화면에 보이는 물체가 작아진다. `alpha: true`여도 `scene.background`에 불투명한 색을 지정하면 배경이 표시된다.
+
+## 21. 절차적 Geometry: 모양을 수학으로 만드는 방법
+
+최종 채택한 형태는 `LatheGeometry(profile, 96)`이다. `Vector2`로 반지름과 높이의 단면을 정의한 뒤 Y축 주위로 회전시키면 고리 형태가 된다. 첫 점과 마지막 점을 연결하면 단면이 닫힌다. 96은 회전 방향의 분할 수로, 많을수록 부드럽지만 정점 수가 늘어난다.
+
+```ts
+const geometry = new THREE.LatheGeometry(profile, 96);
+const mesh = new THREE.Mesh(geometry, material);
+const secondMesh = mesh.clone();
+secondMesh.scale.setScalar(0.75);
+```
+
+`clone()`으로 만든 Mesh는 기본적으로 Geometry와 Material 참조를 공유할 수 있다. 별도의 색상이나 거칠기가 필요할 때 Material을 `clone()`한 이유다. 중심 코어에는 `SphereGeometry`를 사용했다. 회전 대칭인 Lathe 고리를 자신의 Y축으로 90° 회전해도 초기 외관은 크게 변하지 않는다는 점도 기억할 것.
+
+### 이전 실험: Trefoil Knot
+
+`Vector3` 점들을 삼각함수로 만들고 `CatmullRomCurve3`으로 부드러운 폐곡선을 구성했다. `Vector2`와 `Shape`로 단면을 정의하고 `ExtrudeGeometry`의 `extrudePath`를 사용하면 곡선을 따라 단면을 밀어낸 입체를 만들 수 있다. `TorusGeometry`, `EdgesGeometry`, `LineSegments`도 학습했다. 최종 Hero에 채택한 것은 Trefoil이 아니라 Lathe 기반 Orbital System이다.
+
+## 22. 금속, HDR, 유리 표현
+
+금속은 `MeshStandardMaterial`의 높은 `metalness`와 낮은 `roughness`로 표현한다. HDR 환경 텍스처는 여러 방향의 빛 정보를 반사에 제공한다.
+
+```ts
+hdrLoader.load("/office.hdr", (texture) => {
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = texture;
+});
+```
+
+`scene.environment`는 물리 기반 재질의 환경광과 반사에 영향을 준다. `scene.background`와 다른 개념이다.
+
+유리 상자는 얇은 `BoxGeometry(6, 6, 0.06)`를 여섯 개 복제해 구성했다. 중심으로부터 `boxSize / 2 - glassThickness / 2`만큼 양·음의 X/Y/Z 방향으로 이동하고 옆면과 윗면은 90° 회전시킨다. 처음 앞면과 뒷면을 같은 +Z 위치에 둬 유리 한 장처럼 보였던 문제를 해결했다.
+
+최종 재질은 `MeshPhysicalMaterial`의 `transparent: true`, `opacity: 0.12`, `clearcoat: 1`, `depthWrite: false`, `transmission: 0`을 사용한다. 즉 실제 굴절 중심의 유리가 아니라 투명도와 광택, 연한 청록색 모서리로 유리의 인상을 만든 표현이다. `EdgesGeometry`와 `LineSegments`로 각 패널의 윤곽을 표시한다. 여러 투명 패널의 겹침이나 정렬 문제는 남을 수 있다.
+
+## 23. 포인터 인터랙션, 보간, 렌더링 루프
+
+```ts
+mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+targetPosition.set(mouseX * 0.5, -mouseY * 0.5, 0);
+group.position.lerp(targetPosition, 0.05);
+glass.position.copy(group.position);
+```
+
+좌표를 -1~1로 정규화하고 Y를 반전하여 3D 좌표에 맞춘다. `lerp`는 현재값에서 목표값까지 일정 비율만큼 이동하는 선형 보간이다. 매 프레임 5%씩 접근하므로 포인터 위치를 바로 대입하는 것보다 부드럽다. 유리 Group 회전에도 `MathUtils.lerp`를 적용했다.
+
+`requestAnimationFrame`은 다음 화면 갱신 시점에 콜백을 요청한다. `group.rotation.x += 0.003` 같은 프레임당 증가 방식은 모니터 주사율에 따라 실제 속도가 달라질 수 있다. 향후 시간 간격(delta time)을 적용하고 화면 밖 Hero 렌더링을 중지하는 것이 최적화 과제다.
+
+## 24. ResizeObserver와 GPU 자원 정리
+
+캔버스 컨테이너가 변하면 카메라의 `aspect`를 업데이트하고 `updateProjectionMatrix()`를 실행한다. `renderer.setSize(width, height, false)`는 CSS 크기 변경 없이 렌더러 크기를 갱신한다. `setPixelRatio(Math.min(window.devicePixelRatio, 2))`는 고밀도 화면의 선명도와 GPU 부담을 절충한다. DPR 2는 같은 CSS 너비·높이에서 픽셀 수를 약 4배로 만든다.
+
+정리 함수에서는 다음 자원을 해제한다.
+
+- `cancelAnimationFrame(animationId)`
+- `resizeObserver.disconnect()`와 `removeEventListener`
+- Geometry, Material, Texture의 `dispose()` (공유 자원은 한 번만)
+- `scene.environment = null`, `renderer.dispose()`, 캔버스 제거
+
+HDR 로딩은 비동기라 언마운트 이후 콜백이 실행될 수 있다. `disposed` 플래그를 확인해 늦게 도착한 텍스처도 해제한다. DOM만 제거한다고 WebGL 자원이 모두 자동 해제되는 것은 아니다.
+
+## 25. Hero 레이아웃 실패에서 배운 것: Flexbox와 Grid
+
+기존 레이아웃에서는 왼쪽 타이포그래피와 오른쪽 그래픽 전체를 `align-items: center`로 배치했다. 양쪽 구분선을 정확히 일치시키기 위해 `subgrid` 실험을 했지만, 450px 캔버스가 공유 행 높이에 영향을 줘 타이포그래피가 내려갔다. `min-height: 75vh`도 수정 과정에서 누락됐다.
+
+최종 결정은 Flexbox 복구였다. `heroHeading`과 `heroDetails`의 래퍼는 남겨두고, Hero는 `justify-content: space-between`, `align-items: center`, `min-height: 75vh`를 사용한다. 그래픽은 450px 폭과 `aspect-ratio: 1 / 1`의 캔버스를 가지며 좁은 화면에서는 세로 배치한다.
+
+중요한 교훈: 시각적 균형과 수학적인 정렬은 동일하지 않다. 레이아웃을 변경하기 전에 DevTools에서 부모 크기, 자식의 실제 `getBoundingClientRect()`, Flex/Grid 축, margin/padding, computed style을 먼저 확인한다.
+
+## 26. 헤더 디자인과 Scroll Spy (제안 단계)
+
+Sticky 헤더의 위치와 기존 링크 동작은 유지하면서 번호, 모노스페이스 폰트, 오렌지 포인트, hover를 적용했다. Header와 Hero의 About 이동 동작은 동일하게 맞췄다. Projects는 기존 앵커 이동을 유지한다.
+
+다음은 화면 중앙을 기준으로 활성 섹션을 찾는 방식이다. 최신 적용 소스 확인 전까지 완료 기능으로 간주하지 않는다.
+
+```tsx
+const centerY = window.innerHeight / 2;
+const currentSection = ["About", "Projects", "Contact"].find(id => {
+  const section = document.getElementById(id);
+  if (!section) return false;
+  const rect = section.getBoundingClientRect();
+  return rect.top <= centerY && rect.bottom > centerY;
+});
+setActiveSection(currentSection ?? "");
+```
+
+`find()`는 조건에 맞는 첫 번째 요소를 반환하며 없으면 `undefined`다. `??`로 빈 문자열을 기본값으로 지정한다. Projects는 길이가 긴 스크롤 영역이므로 단순히 대상 면적 대비 50%의 교차 비율을 검사하면 감지되지 않을 가능성이 있다. `scroll`/`resize` 리스너의 정리, 필요시 프레임 단위 제한, `aria-current="location"` 적용을 검토한다. Contact가 실제 존재하지 않을 때는 링크 구현도 보류해야 한다.
+
+## 27. 복습 문제: 설명할 수 있어야 내 기술이다
+
+1. DOM 참조에 `useRef`를 쓰는 이유는 무엇인가?
+2. `IntersectionObserver`의 교차 비율 기준과 `isIntersecting`은 어떻게 다른가?
+3. 프로젝트가 4개일 때 각 카드의 각도는 어떻게 구하는가?
+4. 왜 카드에 역회전을 적용하는가?
+5. ScrollTrigger의 `scrub`와 일반 애니메이션 시간은 어떻게 다른가?
+6. 화면 중앙 정렬과 앵커 기본 이동은 왜 다른 결과를 만들 수 있는가?
+7. Geometry, Material, Mesh의 관계를 설명하라.
+8. HDR 환경과 장면 배경의 차이는?
+9. 왜 `clone()` 후 공유 Material을 수정할 때 조심해야 하는가?
+10. 유리 상자에 `depthWrite: false`를 사용한 이유는?
+11. `lerp(current, target, 0.05)`에서 0.05의 의미는?
+12. 매 프레임 고정 회전량의 문제와 개선책은?
+13. React 컴포넌트가 사라질 때 어떤 자원을 정리해야 하는가?
+14. Subgrid 실험에서 왜 타이포그래피가 아래로 이동했는가?
+15. 길이가 긴 Projects 섹션에서 중앙 기준 Scroll Spy가 유용한 이유는?
+
+### 정답 키워드
+
+1. 값 보존, DOM 접근, 불필요한 렌더링 방지. 2. 면적 비율 경계와 실제 교차 여부. 3. `index * 360 / N` (0/90/180/270). 4. 회전축을 따라 이동하면서 카드 방향 유지. 5. 스크롤 진행률과 타임라인 진행률 연결. 6. 정렬 기준, sticky 헤더 및 스크롤 여백. 7. 형태 + 재질 = 렌더링 가능한 객체. 8. 반사·조명 환경과 화면 배경. 9. 복제 객체가 원본 재질 참조를 공유할 수 있음. 10. 투명 패널이 뒤쪽 물체의 깊이 기록을 가리는 문제 완화. 11. 남은 거리의 5% 접근. 12. 주사율 의존, delta time. 13. RAF, Observer, 이벤트, GPU 자원, 캔버스. 14. 높은 공유 행과 정렬 방식, 최소 높이 누락. 15. 대상 전체 면적이 아닌 뷰포트 내 위치로 판별하기 때문.
+
+## 28. 다음 개발 및 학습 순서
+
+- [ ] Scroll Spy 적용 결과와 헤더 모바일 크기 확인
+- [ ] Contact 섹션 및 실제 연락처 링크 구현
+- [ ] 프로젝트 스크린샷, 카드 수에 따른 휠 회전 검증
+- [ ] Three.js 화면 밖 렌더링 및 delta time, 동작 감소 설정 대응
+- [ ] 반응형 레이아웃, 키보드 탐색, 색상 대비 검증
+- [ ] 전체 빌드·린트 실행 및 배포 검증
+
+**핵심:** 포트폴리오는 외형만 보여주는 사이트가 아니다. React 상태와 DOM, 이벤트 처리, 좌표계, 그래픽 자원 수명, 라이브러리와 브라우저의 연결을 직접 실험한 결과물이다.

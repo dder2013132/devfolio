@@ -46,9 +46,6 @@ function Projects({ projects }: ProjectsProps) {
     ScrollTrigger.addEventListener("scrollEnd", snapToSection);
 
     const cards = wheelRef.current.querySelectorAll(`.${styles.cardWrapper}`);
-    const headerHeight = getComputedStyle(document.documentElement)
-      .getPropertyValue("--header-height")
-      .trim();
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
