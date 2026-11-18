@@ -20,11 +20,11 @@ function Contact() {
 
         <div className={styles.contactDetails}>
           <div className={styles.contactLinks}>
-            <a href="mailto:YOUR_EMAIL">
+            <a href="mailto:dder2013@gmail.com">
               EMAIL <span>↗</span>
             </a>
 
-            <a href="YOUR_GITHUB_URL" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/dder2013132" target="_blank" rel="noopener noreferrer">
               GITHUB <span>↗</span>
             </a>
           </div>

@@ -1,7 +1,7 @@
 import ProjectCard from "./ProjectCard";
 import styles from "../css/Projects.module.css";
 import type { Project } from "../types/project";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -16,6 +16,7 @@ interface ProjectsProps {
 function Projects({ projects }: ProjectsProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useGSAP(() => {
     if (!wheelRef.current || !sectionRef.current) return;
@@ -83,6 +84,13 @@ function Projects({ projects }: ProjectsProps) {
           gsap.getProperty(wheelRef.current, "rotationX"),
         );
 
+        const step = 360 / projects.length;
+
+        const index =
+          (projects.length - Math.round(rotation / step)) % projects.length;
+
+        setActiveIndex(index);
+
         cards.forEach((card, index) => {
           const angle = index * (360 / projects.length);
           const totalAngle = angle + rotation;
@@ -115,9 +123,39 @@ function Projects({ projects }: ProjectsProps) {
     };
   });
 
+  const displayIndex = ((projects.length - activeIndex) % projects.length) + 1;
+
   return (
     <div ref={sectionRef} id="Projects" className={styles.scrollArea}>
       <section className={styles.ProjectBackground}>
+        <div className={styles.projectHeading}>
+          <span>02 / SELECTED WORKS</span>
+          <span className={styles.archiveStatus}>● PROJECT ARCHIVE</span>
+        </div>
+        {projects.length > 0 && (
+          <div className={styles.projectCounter}>
+            <span className={styles.currentIndex}>
+              {String(displayIndex).padStart(2, "0")}
+            </span>
+            <span className={styles.totalCount}>
+              / {String(projects.length).padStart(2, "0")}
+            </span>
+          </div>
+        )}
+        <div className={styles.projectProgress}>
+          <span>SCROLL PROGRESS</span>
+
+          <div className={styles.progressTrack}>
+            {projects.map((project, index) => (
+              <div
+                key={project.id}
+                className={`${styles.progressSegment} ${
+                  index < displayIndex ? styles.progressActive : ""
+                }`}
+              />
+            ))}
+          </div>
+        </div>
         <div className={styles.wheelViewport}>
           <div ref={wheelRef} className={styles.wheel}>
             {projects.length === 0 ? (

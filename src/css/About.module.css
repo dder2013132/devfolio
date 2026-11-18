@@ -12,13 +12,6 @@
   gap: 8px;
 }
 
-.skillTag {
-  border: 1px solid #656565;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
 .aboutContent {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -180,7 +173,7 @@
   background: #191e21;
   border: 1px solid #424c50;
   border-radius: 8px;
-  font-family: Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
 
   display: flex;
@@ -209,6 +202,14 @@
   display: inline-block;
   background: var(--color-neon);
   animation: blink 1s step-end infinite;
+}
+
+.systemHeader,
+.sectionLabel,
+.aboutSignature,
+.skillIndex,
+.skillTag {
+  font-family: var(--font-mono);
 }
 
 @keyframes blink {

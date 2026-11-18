@@ -62,3 +62,129 @@
 .cardWrapper {
   width: 100%;
 }
+
+.projectHeading {
+  position: absolute;
+  top: 24px;
+  left: var(--page-padding);
+  right: var(--page-padding);
+
+  max-width: var(--container-width);
+  margin-inline: auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #b9b9b9;
+}
+
+.archiveStatus {
+  color: var(--color-accent);
+}
+
+.projectCounter {
+  position: absolute;
+  left: max(var(--page-padding), calc((100% - var(--container-width)) / 2));
+  bottom: 32px;
+
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+
+  font-family: var(--font-mono);
+}
+
+.currentIndex {
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.totalCount {
+  font-size: 14px;
+  color: #888;
+}
+
+.projectProgress {
+  position: absolute;
+  right: max(var(--page-padding), calc((100% - var(--container-width)) / 2));
+  bottom: 32px;
+
+  width: 140px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #888;
+}
+
+.progressTrack {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.progressSegment {
+  flex: 1;
+  height: 3px;
+  background-color: #454545;
+  transition: background-color 0.3s ease;
+}
+
+.progressActive {
+  background-color: var(--color-accent);
+}
+
+@media (max-width: 800px) {
+  .ProjectBackground {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+
+    grid-template-areas:
+      "heading heading"
+      "wheel   wheel"
+      "counter progress";
+
+    gap: 12px;
+  }
+
+  .projectHeading {
+    grid-area: heading;
+    position: static;
+    width: 100%;
+  }
+
+  .wheelViewport {
+    grid-area: wheel;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    overflow: clip;
+
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+  }
+
+  .wheelItem {
+    inset: 0 6%;
+  }
+
+  .projectCounter {
+    grid-area: counter;
+    position: static;
+  }
+
+  .projectProgress {
+    grid-area: progress;
+    position: static;
+    justify-self: end;
+  }
+}

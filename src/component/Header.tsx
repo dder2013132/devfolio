@@ -34,45 +34,74 @@ function Header() {
     };
   }, []);
 
+  const scrollToSection = (id: string, block: ScrollLogicalPosition) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+      block,
+    });
+  };
+
   return (
     <header className={styles.header}>
-      <a href="#" className={styles.title}>
-        DEVFOLIO<span> ®</span>
-      </a>
-      <nav id="title" className={styles.nav}>
+      <div className={styles.headerInner}>
         <a
-          href="#About"
-          className={`${styles.menu} ${
-            activeSection === "About" ? styles.active : ""
-          }`}
+          href="#"
+          className={styles.title}
           onClick={(event) => {
             event.preventDefault();
 
-            document.getElementById("About")?.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
+            window.scrollTo({
+              top: 0,
+              behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+                .matches
+                ? "instant"
+                : "smooth",
             });
           }}
         >
-          <span className={styles.navIndex}>01 /</span> ABOUT
+          DEVFOLIO<span> ®</span>
         </a>
-        <a
-          href="#Projects"
-          className={`${styles.menu} ${
-            activeSection === "Projects" ? styles.active : ""
-          }`}
-        >
-          <span className={styles.navIndex}>02 /</span> PROJECTS
-        </a>
-        <a
-          href="#Contact"
-          className={`${styles.menu} ${
-            activeSection === "Contact" ? styles.active : ""
-          }`}
-        >
-          <span className={styles.navIndex}>03 /</span> CONTACT
-        </a>
-      </nav>
+        <nav id="title" className={styles.nav}>
+          <a
+            href="#About"
+            className={`${styles.menu} ${
+              activeSection === "About" ? styles.active : ""
+            }`}
+            onClick={(event) => {
+              event.preventDefault();
+              scrollToSection("About", "center");
+            }}
+          >
+            <span className={styles.navIndex}>01 /</span> ABOUT
+          </a>
+          <a
+            href="#Projects"
+            className={`${styles.menu} ${
+              activeSection === "Projects" ? styles.active : ""
+            }`}
+            onClick={(event) => {
+              event.preventDefault();
+              scrollToSection("Projects", "start");
+            }}
+          >
+            <span className={styles.navIndex}>02 /</span> PROJECTS
+          </a>
+          <a
+            href="#Contact"
+            className={`${styles.menu} ${
+              activeSection === "Contact" ? styles.active : ""
+            }`}
+            onClick={(event) => {
+              event.preventDefault();
+              scrollToSection("Contact", "start");
+            }}
+          >
+            <span className={styles.navIndex}>03 /</span> CONTACT
+          </a>
+        </nav>
+      </div>
     </header>
   );
 }

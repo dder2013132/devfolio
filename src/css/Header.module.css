@@ -2,18 +2,22 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+
+  width: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.headerInner {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   height: var(--header-height);
   box-sizing: border-box;
-
   max-width: var(--container-width);
   margin: 0 auto;
   padding: 12px 20px;
-
-  background-color: var(--color-bg);
-  color: var(--color-text);
 }
 
 .nav {
@@ -87,7 +91,7 @@
 }
 
 @media (max-width: 600px) {
-  .header {
+  .headerInner {
     padding-inline: var(--page-padding);
   }
 

@@ -167,7 +167,7 @@ function HeroGraphic() {
     scene.add(directionalLight);
 
     // 6. Renderer Setup
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(width, height);
 
     container.appendChild(renderer.domElement);
@@ -186,7 +186,9 @@ function HeroGraphic() {
     window.addEventListener("pointermove", onPointerMove);
 
     // 8. Animation
-    let animationId: number;
+    let animationId: number | null = null;
+
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const animate = () => {
       group.rotation.x += 0.003;
@@ -218,7 +220,36 @@ function HeroGraphic() {
       animationId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const startAnimation = () => {
+      if (animationId !== null || disposed) return;
+
+      if (motionQuery.matches) {
+        renderer.render(scene, camera);
+        return;
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    const stopAnimation = () => {
+      if (animationId === null) return;
+
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    };
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      { threshold: 0 },
+    );
+
+    visibilityObserver.observe(container);
 
     // 9. Responsive Resize
     const resizeObserver = new ResizeObserver((entries) => {
@@ -230,6 +261,10 @@ function HeroGraphic() {
       camera.updateProjectionMatrix();
 
       renderer.setSize(width, height, false);
+
+      if (motionQuery.matches) {
+        renderer.render(scene, camera);
+      }
     });
 
     resizeObserver.observe(container);
@@ -238,7 +273,8 @@ function HeroGraphic() {
     return () => {
       disposed = true;
 
-      cancelAnimationFrame(animationId);
+      stopAnimation();
+      visibilityObserver.disconnect();
 
       resizeObserver.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
