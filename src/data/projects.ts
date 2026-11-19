@@ -2,7 +2,7 @@ import type { Project } from "../types/project";
 import playportHome from "../assets/screenshots/playport/playport.webp";
 import packetscopeHome from "../assets/screenshots/packetscope/packetscope.webp";
 import kimbapHome from "../assets/screenshots/Kimbap/kimbap.webp";
-import noodleMesHome from "../assets/screenshots/NoodleMES/noodleMES.webp";
+import noodleMesHome from "../assets/screenshots/NoodleMES/noodlemes.webp";
 
 export const projects: Project[] = [
     {
