@@ -1,8 +1,22 @@
 # DEVFOLIO 개발 학습 노트 (한국어)
 
-> 업데이트: 2026-11-18. 11월 11일 `src.zip` 기반의 기초 학습 기록(0~13장)을 보존하고, 11월 17~18일의 컴포넌트 소스와 개발 대화에 기반한 심화 기록(14장 이후)을 추가했다. 과거 장의 '현재'는 당시 스냅샷을 의미한다. 최신 전체 저장소 빌드 및 Scroll Spy 적용 여부는 아직 검증하지 않았다.
+> 업데이트: 2026-11-19 | `devfolio(4).zip` 및 실제 배포 과정 기준. 1~28장은 개발 당시의 시행착오를 보존한 기록이다. 최신 구현·공식 배포·복습은 아래 최신 요약과 Part III(29~38장)를 기준으로 한다. 이번 문서 작업에서 빌드나 Lighthouse를 새로 실행한 것은 아니다.
 
-## 0. 학습 목표와 현재 진행 상황
+## 최신 구현 빠른 요약
+
+- 공개 주소: https://dev.hexha.org — Cloudflare Pages, GitHub main 자동 배포.
+- `App` → Header / main(Hero → HeroGraphic, About, Projects → ProjectCard, Contact) / Footer.
+- 데이터: `src/data/projects.ts`의 4개 프로젝트, `src/types/project.ts`의 `Project` 인터페이스(`img: string` 포함).
+- Contact와 Scroll Spy는 구현 완료. 스크롤 이동은 `src/utils/scroll.ts`로 공통화.
+- 3D 휠, 카드 스냅, `inert`, 모션 감소 시 세로 목록, WebGL 실패 대체 UI 구현.
+- WebP 4장 약 78.3 KiB, HDR `/office-small.hdr`, Fontsource 로컬 폰트, DPR 1.5 상한, delta time, 오프스크린 렌더링 중지.
+- 배포 시 이미지 경로 대소문자 및 기존 R2 WAF 규칙 충돌 해결. Favicon과 SEO 기본 메타데이터 포함.
+
+### 학습 순서
+
+첫 회독은 1~10장(React/TS/CSS), 두 번째는 14~27장(이벤트/3D), 세 번째는 29~38장(최종 구현/배포/면접). 옛 코드와 최종 코드가 다를 때는 Part III 및 실제 소스를 우선한다.
+
+## 0. 학습 목표와 초기 진행 상황 (11월 11일 기록)
 
 DEVFOLIO는 개인 개발 프로젝트를 소개하는 React 기반 원페이지 포트폴리오다. 지금까지의 핵심 목표는 **컴포넌트 분리 → TypeScript 데이터 모델 → Props 전달 → 반복 렌더링 → CSS Modules → High Contrast 디자인 구성**이다.
 
@@ -665,6 +679,162 @@ setActiveSection(currentSection ?? "");
 
 **핵심:** 포트폴리오는 외형만 보여주는 사이트가 아니다. React 상태와 DOM, 이벤트 처리, 좌표계, 그래픽 자원 수명, 라이브러리와 브라우저의 연결을 직접 실험한 결과물이다.
 
+# Part III. 최종 구현과 배포 (11월 19일)
+
+## 29. 최종 코드 지도: 책임을 분리하는 이유
+
+| 파일 | 책임 |
+| --- | --- |
+| `App.tsx` | 페이지 조립, 프로젝트 배열 전달 |
+| `data/projects.ts` | 프로젝트 4개의 데이터와 이미지 import |
+| `types/project.ts` | 데이터 계약 (`img: string`, `githubUrl?: string` 포함) |
+| `ProjectCard.tsx` | 개별 프로젝트 표시 |
+| `Projects.tsx` | 회전·스냅·활성 카드 상태 |
+| `HeroGraphic.tsx` | WebGL 장면 및 자원 수명 |
+| `Header.tsx` | 중앙 기준 Scroll Spy |
+| `utils/scroll.ts` | 모션 설정에 맞는 공통 스크롤 동작 |
+| `Contact.tsx`, `Footer.tsx` | 연락처, 외부 링크, 상단 이동 |
+
+데이터 수정이 필요하면 UI 대신 `data/projects.ts`를 수정한다. `ProjectCard`가 데이터 출처를 몰라도 되는 설계는 백엔드에서 DTO와 서비스 책임을 분리하는 사고와 연결된다. 현재 Kimbap과 NoodleMES의 `techStack`은 빈 배열이다. 실제 정보 확인 후 채우면 된다.
+
+## 30. 3D 휠 최종 수학과 Snap
+
+```ts
+const angleStep = 360 / projects.length;
+const maxRotation = angleStep * (projects.length - 1);
+```
+
+4개면 90° 간격, 총 270° 회전이다. 휠은 양의 방향으로 돌기 때문에 전면 카드의 배열 인덱스는 0 → 3 → 2 → 1이다. `displayIndex`는 이를 진행 순서 1 → 2 → 3 → 4로 변환한다.
+
+```ts
+const index = (projects.length - Math.round(rotation / angleStep)) % projects.length;
+const displayIndex = ((projects.length - activeIndex) % projects.length) + 1;
+```
+
+스크롤 전체의 8/9만 회전에 사용하고 나머지 1/9는 마지막 카드 유지 구간이다. 카드가 4개면 정지 지점은 0, 8/27, 16/27, 8/9. `snapTo`는 가장 가까운 지점과의 차이가 한 구간의 10% 이하일 때만 그 지점으로 이동한다. `progress >= 8/9`에서는 그대로 반환한다. 즉 항상 강제 스냅시키는 것이 아니다.
+
+```ts
+const step = 8 / 9 / (projects.length - 1);
+const nearest = Math.round(progress / step) * step;
+```
+
+`useGSAP`에서 0~1개는 애니메이션 초기화를 생략한다. JSX는 빈 목록 메시지를 별도로 렌더링한다. 다만 빈 배열일 때 `displayIndex` 계산은 NaN이 되므로 데이터가 동적으로 변하는 기능을 추가할 때는 별도의 가드와 타임라인 재생성 의존성을 검토한다.
+
+## 31. 접근성: 보여야 하는 것과 조작 가능한 것은 다르다
+
+`depth = Math.cos(totalAngle * Math.PI / 180)`으로 앞뒤 위치를 판정한다. 깊이 0.95 이상만 조작 가능하도록 설정한다.
+
+```ts
+card.inert = !isInteractive;
+gsap.set(card, { pointerEvents: isInteractive ? "auto" : "none" });
+```
+
+`pointer-events`는 마우스 이벤트를 제한하지만 Tab 탐색을 막지 못한다. `inert`는 비활성 하위 요소의 클릭과 포커스 및 접근성 트리 노출을 제한한다. Cleanup에서 반드시 `inert = false`로 되돌린다.
+
+GSAP MatchMedia가 no-preference일 때만 타임라인을 생성하고, reduced-motion CSS가 sticky/3D 배치와 카운터를 해제해 세로 목록을 제공한다. `mm.revert()`로 모션 설정 변경 및 언마운트 시 정리한다. Header/Hero/Footer의 공통 스크롤 유틸리티는 `matchMedia`에 따라 instant 또는 smooth를 반환한다.
+
+## 32. 시간 기반 애니메이션과 GPU 비용
+
+```ts
+const deltaTime = lastTime === null ? 0 : Math.min((currentTime - lastTime) / 1000, 0.1);
+const alpha = 1 - Math.pow(0.95, deltaTime * 60);
+group.rotation.x += 0.18 * deltaTime;
+```
+
+RAF 시간은 밀리초이므로 1000으로 나누어 초 단위로 변환한다. 0.18은 초당 회전 라디안이다. 60Hz에서 약 0.003씩, 120Hz에서 약 0.0015씩 증가하므로 초당 속도가 동일하다. 0.1초 상한은 긴 프레임 지연 후 갑자기 크게 움직이지 않게 한다(실제 시간과 완전히 일치시키기보다는 안정성을 우선).
+
+`alpha`는 60Hz에서의 5% 보간을 다른 주사율에도 비슷하게 맞춘다. 두 번의 120Hz 보간을 거치면 남은 거리 비율이 0.95가 되는 구조다.
+
+`renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))`로 내부 해상도를 제한한다. CSS 크기 400×400일 때 DPR 1.5는 600×600, DPR 3은 1200×1200이다. 전자는 후자의 픽셀 수 1/4이다. 실제 GPU 시간은 셰이더·장면 복잡도에 따라서도 달라진다.
+
+## 33. 렌더링 수명과 예외 처리
+
+`IntersectionObserver`는 HeroGraphic이 뷰포트에 들어오면 RAF를 예약하고 나가면 취소한다. `animationId !== null` 가드는 중복 루프를 막고, 종료 시 `lastTime = null`로 이전 실행의 시간을 초기화한다. reduced-motion인 상태에서 시작하면 정적인 프레임만 그린다.
+
+`try/catch`는 WebGLRenderer **생성 실패**를 처리하며 `hasError` 상태에 따라 `3D GRAPHICS UNAVAILABLE`이 나타난다. 전체 렌더링 오류를 모두 처리한다는 뜻은 아니다. HDR이 늦게 도착하면 `disposed` 플래그로 이미 해제된 장면에 적용하지 않고 텍스처를 폐기한다.
+
+정리 순서: disposed 표시 → RAF 중단 → 옵저버·리스너 해제 → 환경·geometry·material 해제 → renderer 해제 → canvas 제거. StrictMode의 설정-정리-설정 사이클에서 이 순서가 특히 중요하다.
+
+**검토 포인트:** HeroGraphic에는 motionQuery의 `change` 리스너가 없다. Projects는 즉시 모션 모드 전환을 처리하지만 Hero는 화면 진입/재진입 또는 새로고침 등에서 motionQuery를 읽는다. 지속 표시 중 설정을 바꿨을 때의 즉시 중지/재시작은 추가 확인 대상이다. HDR 로드 실패 및 WebGL context lost 복구도 현재 별도 처리하지 않는다.
+
+## 34. 리소스 최적화와 Lighthouse
+
+기존 PNG 총량 1,880.6 KiB(개발 기록) → 현재 WebP 80,190바이트 ≈ 78.3 KiB. 감소율은 `(1 - 78.3 / 1880.6) × 100 ≈ 95.8%`. HDR은 개발 기록상 1024×512에서 512×256으로 줄였고, 최종 파일 `/office-small.hdr`은 약 337.5 KiB다. WebP 사진 합계와 HDR 크기는 별개다.
+
+`main.tsx`에서 Fontsource 패키지의 폰트를 import한다. Vite가 CSS와 폰트 파일을 번들에 포함하므로 Google Fonts CDN에 대한 별도의 외부 연결 의존성이 줄어든다. 외부 CDN 제거가 자동으로 모든 폰트 로딩 지연을 제거하지는 않는다.
+
+Lighthouse는 성능·접근성·모범 사례·SEO를 자동 점검한다. 기존 Performance 95는 당시 측정값이고, 현재 사이트에서 재측정한 결과가 아니다. 특히 동일한 기기/네트워크 조건에서 비교해야 개선 효과를 판단할 수 있다. `index.html`의 title/description/favicon, `robots.txt`, 색 대비, heading, 반응형 CSS를 점검한다. `robots.txt`의 Allow는 색인 허용 의사 표현이지 색인 성공 보장이 아니다.
+
+## 35. CI/CD: 로컬 개발에서 실제 인터넷까지
+
+```text
+Local files → git commit → git push main → GitHub
+  → Cloudflare Pages → npm ci → tsc -b && vite build → dist → CDN
+```
+
+`npm run dev`는 개발 서버, `npm run build`는 배포용 정적 번들 생성, `npm run preview`는 빌드 결과 확인이다. Cloudflare Pages 설정은 main / npm run build / dist. `devfolio-6hx.pages.dev`는 기본 주소이고 `dev.hexha.org`는 같은 배포를 가리키는 사용자 지정 호스트다. DNS 연결과 HTTPS 인증서는 빌드 과정과 별도다.
+
+실제 발생한 빌드 실패: `noodleMES.webp`를 import했지만 Git에는 `noodlemes.webp`가 등록됐다. Windows에서 우연히 통과하더라도 Linux에서 대소문자 불일치는 서로 다른 경로다. TypeScript 단계 통과 이후 Vite가 실제 자산을 해석할 때 실패했다.
+
+```powershell
+git ls-files "src/assets/screenshots/*"
+npm run lint
+npm run build
+git add src/data/projects.ts
+git commit -m "fix: correct image import path"
+git push origin main
+```
+
+재배포는 push 후 자동으로 이루어진다. 커밋 전에 `git status`로 수정 대상만 확인한다. 파일 자체의 대소문자만 바꿀 필요가 있다면 Windows에서는 임시 이름을 거친 `git mv`를 사용한다.
+
+## 36. DNS, R2, WAF: 서로 다른 책임
+
+| 구성 | 역할 |
+| --- | --- |
+| DNS | 호스트 이름을 서비스에 연결 |
+| Pages | 정적 포트폴리오 파일 제공 |
+| R2 | 기존 챗봇 이미지 저장 및 제공 |
+| TLS | 전송 암호화 및 서버 인증 |
+| WAF | HTTP 요청의 규칙 기반 차단 |
+
+기존 apex `hexha.org`는 R2 이미지 서버로 사용 중이므로 연결을 삭제하지 않고 `dev.hexha.org`를 Pages에 연결했다. 그런데 보안 규칙이 호스트 전체에 적용되어 포트폴리오까지 차단됐다. 기본 pages.dev는 접속 가능했고 사용자 지정 도메인만 403이었으므로 배포 파일 자체 대신 DNS/보안 계층을 조사했다.
+
+Security Analytics 이벤트에서 Ray ID, 호스트, 요청 경로, 차단 규칙을 확인했다. 기존 참조자(Referer) 허용 조건에 `http.host eq "hexha.org"`를 AND로 추가하여 이미지 보호 범위를 apex로 제한했다. 규칙 자체를 삭제하지 않고 문제의 범위를 수정한 사례다. Referer는 클라이언트가 위조하거나 생략할 수 있으므로 엄격한 인증 수단이 아니다. 영구적으로 사적 자원을 보호할 경우 서명 URL이나 인증 등을 고려한다.
+
+## 37. 면접 대비: 답을 가리고 말하기
+
+1. `useRef`와 `useState`를 각각 어디에 쓰고 왜 구분하는가?
+2. 배열 렌더링에서 key와 빈 배열 검사를 왜 따로 처리하는가?
+3. 휠 카드가 5개라면 각도와 총 회전량은 얼마인가?
+4. `pointer-events: none`만으로 접근성 문제를 해결할 수 없는 이유는?
+5. DPR 3과 1.5의 픽셀 수 차이는?
+6. delta time이 없으면 60Hz와 120Hz에서 무슨 일이 발생하는가?
+7. HDR 비동기 콜백의 `disposed`가 필요한 이유는?
+8. 로컬 빌드가 정상인데 배포가 실패할 수 있는 사례는?
+9. Pages 기본 주소는 열리는데 커스텀 도메인에서 403이 발생했다. 어디부터 확인할 것인가?
+10. 왜 WAF를 끄지 않고 호스트 조건을 추가했는가?
+
+**정답:** 1. DOM/외부 상태 보존 vs JSX 상태 변경. 2. 항목 정체성과 빈 배열의 콜백 미실행. 3. 72°, 288°. 4. 키보드 포커스는 남을 수 있다. 5. 4배. 6. 프레임당 고정 변화량이면 120Hz가 두 배 빠르다. 7. 해제된 장면에 텍스처를 적용하는 누수 방지. 8. Linux 경로 대소문자. 9. 호스트·Ray ID·이벤트·규칙 비교. 10. 기존 R2 보호를 유지하고 새 호스트만 차단 대상에서 제외하기 위해.
+
+면접에서는 '무엇을 했다'보다 **문제 → 원인 → 근거 → 수정 → 검증** 순서로 말한다. 본 프로젝트의 배포 오류와 WAF 충돌이 대표 사례다.
+
+## 38. 출시 후 체크리스트
+
+- [x] 4개 프로젝트 이미지, Contact, Scroll Spy 구현
+- [x] 성능 및 reduced-motion 대응 기능 구현
+- [x] Cloudflare Pages 배포와 dev.hexha.org 접속 확인(개발 대화 기준)
+- [x] 대소문자 및 WAF 충돌 해결
+- [ ] 최종 포트폴리오 배포본 lint/build 및 모바일·키보드 점검
+- [ ] 최신 배포본 Lighthouse 재측정
+- [ ] Hero 모션 설정 실시간 변경, WebGL 실패 및 HDR 로드 실패 테스트
+- [ ] 이미지 대체 텍스트를 프로젝트별 영어 설명으로 개선할지 검토
+- [ ] HDR 등 외부 자산 라이선스와 출처 확인
+
+---
+
+## 부록. 초기 Trefoil 실험 코드 (학습 기록, 최종 구현 아님)
+
+```ts
 /*
  * Three.js Experiment
  * Procedural Trefoil Knot + ExtrudeGeometry
@@ -720,3 +890,4 @@ edges.dispose();
 material.dispose();
 
 */
+```
