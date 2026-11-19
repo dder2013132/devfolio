@@ -147,7 +147,10 @@ function Projects({ projects }: ProjectsProps) {
       <section className={styles.ProjectBackground}>
         <div className={styles.projectHeading}>
           <span>02 / SELECTED WORKS</span>
-          <span className={styles.archiveStatus}>● PROJECT ARCHIVE</span>
+          <span className={styles.archiveStatus}>
+            <span className={styles.statusLight} aria-hidden="true" />
+            PROJECT ARCHIVE
+          </span>
         </div>
         {projects.length > 0 && (
           <div className={styles.projectCounter}>

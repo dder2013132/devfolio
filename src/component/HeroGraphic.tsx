@@ -329,7 +329,10 @@ function HeroGraphic() {
       <figcaption className={styles.caption}>
         <div className={styles.captionHeader}>
           <span>FIG. 01 — ORBITAL SYSTEM</span>
-          <span className={styles.status}>● ACTIVE</span>
+          <span className={styles.status}>
+            <span className={styles.statusLight} aria-hidden="true" />
+            ACTIVE
+          </span>
         </div>
 
         <p className={styles.description}>
