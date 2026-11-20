@@ -2,10 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import styles from "../css/About.module.css";
 
 const skills = {
-  backend: ["Java", "Servlet", "JSP", "JDBC"],
+  backend: [
+    "Java",
+    "Spring Boot",
+    "Spring Security",
+    "JPA",
+    "Servlet",
+    "JSP",
+    "JDBC",
+    "Node.js",
+    "Express",
+  ],
   database: ["SQL", "PostgreSQL", "MySQL", "Oracle", "MariaDB"],
   systems: ["C", "Win32 API", "Npcap"],
-  frontend: ["React", "TypeScript", "JavaScript", "HTML", "CSS", "Three.js"],
+  frontend: [
+    "React",
+    "Vue.js",
+    "TypeScript",
+    "JavaScript",
+    "HTML",
+    "CSS",
+    "Three.js",
+  ],
+  devops: ["Git", "Docker", "Jenkins", "GitHub Actions", "Nginx"],
 };
 
 function About() {
@@ -59,7 +78,9 @@ function About() {
             </h1>
 
             <div className={styles.aboutDescription}>
-              <p className={styles.aboutSubtitle}>Building systems, understanding their flow.</p>
+              <p className={styles.aboutSubtitle}>
+                Building systems, understanding their flow.
+              </p>
               <p>
                 I'm a developer interested in backend systems, database
                 structures, and low-level programming.
