@@ -3,9 +3,9 @@ import styles from "../css/About.module.css";
 
 const skills = {
   backend: ["Java", "Servlet", "JSP", "JDBC"],
-  database: ["PostgreSQL"],
-  systems: ["C", "Win32 API"],
-  frontend: ["React", "TypeScript", "CSS"],
+  database: ["SQL", "PostgreSQL", "MySQL", "Oracle", "MariaDB"],
+  systems: ["C", "Win32 API", "Npcap"],
+  frontend: ["React", "TypeScript", "JavaScript", "HTML", "CSS", "Three.js"],
 };
 
 function About() {
